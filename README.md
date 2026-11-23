@@ -1,5 +1,5 @@
 ﻿<p align="center">
-  <img src="docs/images/app-icon.webp" width="96" alt="" />
+  <img src="docs/images/app-icon.png" width="96" alt="" />
 </p>
 
 <h1 align="center">Ghost Click</h1>
