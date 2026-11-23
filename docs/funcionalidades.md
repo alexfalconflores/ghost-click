@@ -60,7 +60,6 @@ Detecta si el mouse registra clics que el usuario no hizo ("clics fantasma"): do
 ## Limitaciones conocidas
 - **Clics combinados**: si un botón está pulsado, el clic del otro no se cuenta. Ver [ideas/clics-combinados.md](ideas/clics-combinados.md).
 - **Requiere empaquetado MSIX**: `Package.Current` y `ApplicationData.Current` no funcionan sin identidad de paquete.
-- **Usuarios que vienen de la versión UWP** (Double Click Test) verán la bienvenida en lugar de las novedades la primera vez.
 
 ## Persistencia
 | Dato | Dónde |
@@ -70,3 +69,8 @@ Detecta si el mouse registra clics que el usuario no hizo ("clics fantasma"): do
 | Última versión vista | `LocalSettings` → `LastLaunchedVersion` |
 
 Los resultados de las pruebas **no** se guardan. Ver [ideas/historial-de-sesiones.md](ideas/historial-de-sesiones.md).
+
+## Publicación
+- App independiente en Microsoft Store (no es una actualización de Double Click Test, que sigue publicada en UWP).
+- Requiere Windows 11 (`MinVersion 10.0.22000.0`).
+- Comentarios: [issues del repositorio](https://github.com/alexfalconflores/ghost-click/issues).

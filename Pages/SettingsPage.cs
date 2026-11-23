@@ -129,7 +129,7 @@ public class SettingsPage : Component
                             ]).Margin(0, 0, 0, 8),
                             Link("X / Twitter", "https://x.com/falcon_stefano"),
                             Link("LinkedIn", "https://www.linkedin.com/in/alexfalconflores/"),
-                            Link(intl.Message(Loc.Settings.SendFeedback), "https://github.com/alexfalconflores/double-click-test/issues"),
+                            Link(intl.Message(Loc.Settings.SendFeedback), "https://github.com/alexfalconflores/ghost-click/issues"),
                             Link(intl.Message(Loc.Settings.RateApp), $"ms-windows-store://review/?PFN={info.FamilyName}"),
                             Link(intl.Message(Loc.Settings.MoreApps), $"ms-windows-store://publisher/?name={Uri.EscapeDataString(info.Publisher)}")
                         ]))

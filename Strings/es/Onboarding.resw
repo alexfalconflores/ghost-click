@@ -136,10 +136,9 @@
     <value>Te damos la bienvenida a Ghost Click</value>
   </data>
   <data name="WhatsNewChanges" xml:space="preserve">
-    <value>Ahora se llama Ghost Click
-Rediseñada con WinUI 3 para Windows 11
-Tema claro y oscuro
-Nueva página de Configuración</value>
+    <value>Detecta sueltas fantasma: botones que se sueltan solos mientras los mantienes
+Veredicto claro por botón: está bien, revísalo o conviene cambiarlo
+Correcciones y mejoras de rendimiento</value>
   </data>
   <data name="WhatsNewTitle" xml:space="preserve">
     <value>Novedades de la versión {version}</value>

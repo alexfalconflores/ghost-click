@@ -136,10 +136,9 @@
     <value>Welcome to Ghost Click</value>
   </data>
   <data name="WhatsNewChanges" xml:space="preserve">
-    <value>It's now called Ghost Click
-Redesigned with WinUI 3 for Windows 11
-Light and dark themes
-New Settings page</value>
+    <value>Detects ghost releases: buttons that let go on their own while held
+Clear verdict for each button: fine, check it or replace it
+Bug fixes and performance improvements</value>
   </data>
   <data name="WhatsNewTitle" xml:space="preserve">
     <value>What’s new in {version}</value>

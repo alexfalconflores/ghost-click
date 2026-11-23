@@ -117,6 +117,9 @@
   <resheader name="writer">
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
+  <data name="AppDescription" xml:space="preserve">
+    <value>Detecta clics fantasma y dobles clics no deseados en cualquier botón del mouse.</value>
+  </data>
   <data name="AppName" xml:space="preserve">
     <value>Ghost Click</value>
   </data>
