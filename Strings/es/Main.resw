@@ -132,20 +132,44 @@
   <data name="ButtonRight" xml:space="preserve">
     <value>Derecho</value>
   </data>
+  <data name="ClickHere" xml:space="preserve">
+    <value>Haz clic aquí</value>
+  </data>
+  <data name="ClickHereHint" xml:space="preserve">
+    <value>Usa cualquier botón del mouse. Puedes pulsar varios a la vez.</value>
+  </data>
   <data name="Clicks" xml:space="preserve">
     <value>Clics</value>
   </data>
   <data name="DoubleClicks" xml:space="preserve">
     <value>Clics fantasma</value>
   </data>
+  <data name="GhostHint" xml:space="preserve">
+    <value>Abre el historial para ver qué botón falló.</value>
+  </data>
   <data name="GhostMarker" xml:space="preserve">
     <value>clic fantasma</value>
+  </data>
+  <data name="GhostTitle" xml:space="preserve">
+    <value>Clic fantasma detectado</value>
+  </data>
+  <data name="HideHistory" xml:space="preserve">
+    <value>Ocultar</value>
+  </data>
+  <data name="History" xml:space="preserve">
+    <value>Historial</value>
+  </data>
+  <data name="HistoryEmpty" xml:space="preserve">
+    <value>Aún no hay intervalos</value>
   </data>
   <data name="Intervals" xml:space="preserve">
     <value>Tiempo entre clics (s)</value>
   </data>
   <data name="Reset" xml:space="preserve">
     <value>Reiniciar</value>
+  </data>
+  <data name="ShowHistory" xml:space="preserve">
+    <value>Historial</value>
   </data>
   <data name="TestArea" xml:space="preserve">
     <value>Zona de prueba de clics</value>

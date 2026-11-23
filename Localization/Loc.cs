@@ -29,6 +29,14 @@ public static class Loc
         public static readonly MessageKey ButtonForward = new(Ns, "ButtonForward");
         public static readonly MessageKey GhostMarker = new(Ns, "GhostMarker");
         public static readonly MessageKey ThresholdInfo = new(Ns, "ThresholdInfo");
+        public static readonly MessageKey ClickHere = new(Ns, "ClickHere");
+        public static readonly MessageKey ClickHereHint = new(Ns, "ClickHereHint");
+        public static readonly MessageKey GhostTitle = new(Ns, "GhostTitle");
+        public static readonly MessageKey GhostHint = new(Ns, "GhostHint");
+        public static readonly MessageKey History = new(Ns, "History");
+        public static readonly MessageKey HistoryEmpty = new(Ns, "HistoryEmpty");
+        public static readonly MessageKey ShowHistory = new(Ns, "ShowHistory");
+        public static readonly MessageKey HideHistory = new(Ns, "HideHistory");
     }
 
     public static class Settings

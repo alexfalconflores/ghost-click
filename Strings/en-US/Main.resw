@@ -132,20 +132,44 @@
   <data name="ButtonRight" xml:space="preserve">
     <value>Right</value>
   </data>
+  <data name="ClickHere" xml:space="preserve">
+    <value>Click here</value>
+  </data>
+  <data name="ClickHereHint" xml:space="preserve">
+    <value>Use any mouse button. You can press several at once.</value>
+  </data>
   <data name="Clicks" xml:space="preserve">
     <value>Clicks</value>
   </data>
   <data name="DoubleClicks" xml:space="preserve">
     <value>Ghost clicks</value>
   </data>
+  <data name="GhostHint" xml:space="preserve">
+    <value>Open the history to see which button failed.</value>
+  </data>
   <data name="GhostMarker" xml:space="preserve">
     <value>ghost click</value>
+  </data>
+  <data name="GhostTitle" xml:space="preserve">
+    <value>Ghost click detected</value>
+  </data>
+  <data name="HideHistory" xml:space="preserve">
+    <value>Hide</value>
+  </data>
+  <data name="History" xml:space="preserve">
+    <value>History</value>
+  </data>
+  <data name="HistoryEmpty" xml:space="preserve">
+    <value>No intervals yet</value>
   </data>
   <data name="Intervals" xml:space="preserve">
     <value>Time between clicks (s)</value>
   </data>
   <data name="Reset" xml:space="preserve">
     <value>Reset</value>
+  </data>
+  <data name="ShowHistory" xml:space="preserve">
+    <value>History</value>
   </data>
   <data name="TestArea" xml:space="preserve">
     <value>Click test area</value>

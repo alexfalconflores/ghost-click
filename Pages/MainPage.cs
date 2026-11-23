@@ -6,8 +6,10 @@ using Microsoft.UI.Reactor.Localization;
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Input;
 using Microsoft.UI.Xaml.Media.Animation;
+using Windows.UI.ViewManagement;
 using System.Collections.Immutable;
 using static Microsoft.UI.Reactor.Factories;
+using Microsoft.UI.Xaml.Controls;
 
 namespace Click_Test.Pages;
 
@@ -38,7 +40,7 @@ public record ClickState(
 public class MainPage : Component
 {
     static readonly ClickButton[] Buttons = Enum.GetValues<ClickButton>();
-
+    
     // ── Update ──
     // timestamp: microsegundos del PointerPoint
     static ClickState OnButtonDown(ClickState s, ClickButton button, ulong timestamp, int thresholdMs)
@@ -62,7 +64,7 @@ public class MainPage : Component
         {
             Stats = s.Stats.SetItem(button, updated),
             Pressed = s.Pressed.Add(button),
-            History = interval is double d ? [new ClickEntry(button, d, isGhost), .. s.History] : s.History,
+            History = interval is double d ? [new ClickEntry(button, d, isGhost), .. s.History.Take(499)] : s.History,
         };
     }
 
@@ -99,14 +101,61 @@ public class MainPage : Component
         _ => Loc.Main.ButtonForward,
     };
 
+    const double PaneWidth = 268; // 260 de tarjeta + 8 de separación
+
+    // Anima el ancho del panel: al crecer empuja a la zona de prueba
+    static void AnimatePane(FrameworkElement pane, bool open)
+    {
+        var to = open ? PaneWidth : 0;
+        if (pane.Tag is double current && current == to) return; // ya está (o va) hacia ahí
+
+        var firstRender = pane.Tag is null;
+        pane.Tag = to;
+
+        // Primer render o animaciones desactivadas en Windows: sin animación
+        if (firstRender || !new UISettings().AnimationsEnabled)
+        {
+            pane.Width = to;
+            pane.Opacity = open ? 1 : 0;
+            pane.Visibility = open ? Visibility.Visible : Visibility.Collapsed;
+            return;
+        }
+
+        pane.Visibility = Visibility.Visible;
+
+        var duration = TimeSpan.FromMilliseconds(250);
+        var ease = new CubicEase { EasingMode = EasingMode.EaseOut };
+
+        var width = new DoubleAnimation { To = to, Duration = duration, EasingFunction = ease, EnableDependentAnimation = true };
+        Storyboard.SetTarget(width, pane);
+        Storyboard.SetTargetProperty(width, "Width");
+
+        var fade = new DoubleAnimation { To = open ? 1 : 0, Duration = duration, EasingFunction = ease };
+        Storyboard.SetTarget(fade, pane);
+        Storyboard.SetTargetProperty(fade, "Opacity");
+
+        var sb = new Storyboard();
+        sb.Children.Add(width);
+        sb.Children.Add(fade);
+        sb.Completed += (_, _) =>
+        {
+            // Cerrado: fuera del árbol de accesibilidad y del foco con Tab
+            if (pane.Tag is 0d) pane.Visibility = Visibility.Collapsed;
+        };
+        sb.Begin();
+    }
+
+
     // ── View ──
     public override Element Render()
     {
         var intl = UseIntl();
         var (state, update) = UseReducer(ClickState.Initial);
+        var (historyOpen, setHistoryOpen) = UseState(false);
         var thresholdMs = AppSettings.ThresholdMs;
 
         string Name(ClickButton b) => intl.Message(NameKey(b));
+        string Ms(double sec) => $"{intl.FormatNumber(Math.Round(sec * 1000, 1))} ms";
 
         void OnPointer(object sender, PointerRoutedEventArgs e)
         {
@@ -145,21 +194,90 @@ public class MainPage : Component
                 .Background(Theme.CardBackground);
         }
 
-        var historyText = string.Join("\n", state.History.Select(h =>
-            $"{Name(h.Button)}   {intl.FormatNumber(h.IntervalSec)} s" +
-            (h.IsGhost ? $"   ← {intl.Message(Loc.Main.GhostMarker)}" : "")));
+        // ── Historial (derecha) ──
+        Element HistoryRow(ClickEntry h, int i)
+        {
+            var time = Caption(Ms(h.IntervalSec));
+            if (h.IsGhost) time = time.Foreground(Theme.SystemCritical);
 
-        return Grid(
+            return Grid(
+                columns: [GridSize.Star(), GridSize.Auto],
+                rows: [GridSize.Auto],
+                Caption(Name(h.Button) + (h.IsGhost ? $" · {intl.Message(Loc.Main.GhostMarker)}" : ""))
+                    .Grid(row: 0, column: 0),
+                time.Grid(row: 0, column: 1)
+            ).WithKey($"{state.History.Length - i}");
+        }
+
+        var historyCard = Border(
+                VStack(8,
+                    BodyStrong(intl.Message(Loc.Main.History)),
+                    state.History.Length == 0
+                        ? Caption(intl.Message(Loc.Main.HistoryEmpty)).Opacity(0.7).TextWrapping(TextWrapping.Wrap)
+                        : ScrollView(VStack(4, state.History.Select(HistoryRow).ToArray()))))
+            .Width(PaneWidth - 8) // ancho fijo: el contenido no se reacomoda mientras crece
+            .Margin(8, 0, 0, 0)   // separación con la zona de prueba (va dentro para que también se anime)
+            .HAlign(HorizontalAlignment.Left)
+            .Padding(12)
+            .CornerRadius(8)
+            .Background(Theme.CardBackground)
+            .AutomationName(intl.Message(Loc.Main.Intervals));
+
+        // Contenedor que se anima: recorta la tarjeta mientras crece
+        var historyPane = Border(historyCard)
+            .Set(b => AnimatePane(b, historyOpen));
+
+        // ── Zona de prueba ──
+        var ghost = state.GhostDetected;
+        var anyPressed = !state.Pressed.IsEmpty;
+
+        var testArea = Border(
+                VStack(8,
+                    Icon(FontIcon(ghost ? "\uE7BA" : "\uE962", fontSize: 48))
+                        .Foreground(ghost ? Theme.SystemCritical : Theme.Ref("TextFillColorSecondaryBrush")),
+                    Subtitle(intl.Message(ghost ? Loc.Main.GhostTitle : Loc.Main.ClickHere)),
+                    Caption(intl.Message(ghost ? Loc.Main.GhostHint : Loc.Main.ClickHereHint))
+                        .Opacity(0.7)
+                        .TextWrapping(TextWrapping.Wrap)
+                ).Center()
+                 .IsHitTestVisible(false)) // los eventos los recibe solo el Border
+            .CornerRadius(8)
+            .Background(anyPressed
+                ? Theme.Ref("CardBackgroundFillColorSecondaryBrush")
+                : Theme.CardBackground)
+            .BorderThickness(ghost ? 2 : 1)
+            .BorderBrush(ghost ? Theme.SystemCritical : Theme.Ref("CardStrokeColorDefaultBrush"))
+            .AutomationName(intl.Message(Loc.Main.TestArea))
+            .OnPointerPressed((s, e) => OnPointer(s, e))
+            .OnPointerMoved((s, e) => OnPointer(s, e))
+            .OnPointerReleased((s, e) => OnPointer(s, e))
+            .OnPointerCaptureLost((s, e) => update(OnAllReleased));
+
+        // ── Cabecera ──
+        var historyLabel = intl.Message(historyOpen ? Loc.Main.HideHistory : Loc.Main.ShowHistory);
+        var historyButton = Button(
+                HStack(8,
+                    Icon(FontIcon(historyOpen ? "\uE76C" : "\uE81C", fontSize: 16)),
+                    TextBlock(historyLabel)),
+                () => setHistoryOpen(!historyOpen))
+            .AutomationName(historyLabel);
+
+        var header = Grid(
             columns: [GridSize.Star(), GridSize.Auto],
-            rows: [GridSize.Auto, GridSize.Auto, GridSize.Star(), GridSize.Star()],
-
+            rows: [GridSize.Auto],
             Caption(intl.Message(Loc.Main.ThresholdInfo, ("ms", thresholdMs)))
                 .VAlign(VerticalAlignment.Center)
                 .Grid(row: 0, column: 0),
+            HStack(8,
+                historyButton,
+                Button(intl.Message(Loc.Main.Reset), () => update(OnReset))
+            ).Grid(row: 0, column: 1));
 
-            Button(intl.Message(Loc.Main.Reset), () => update(OnReset))
-                .HAlign(HorizontalAlignment.Right)
-                .Grid(row: 0, column: 1),
+        return Grid(
+            columns: [GridSize.Star(), GridSize.Auto],
+            rows: [GridSize.Auto, GridSize.Auto, GridSize.Star()],
+
+            header.Grid(row: 0, column: 0, columnSpan: 2),
 
             // Las 5 tarjetas, mismo ancho
             Grid(
@@ -169,30 +287,12 @@ public class MainPage : Component
             ).Set(g => g.ColumnSpacing = 8)
              .Grid(row: 1, column: 0, columnSpan: 2),
 
-            Border(Empty())
-                .CornerRadius(4)
-                .Background(state.GhostDetected ? Theme.SystemCritical : Theme.SystemCaution)
-                .AutomationName(intl.Message(Loc.Main.TestArea))
-                .OnPointerPressed((s, e) => OnPointer(s, e))
-                .OnPointerMoved((s, e) => OnPointer(s, e))
-                .OnPointerReleased((s, e) => OnPointer(s, e))
-                .OnPointerCaptureLost((s, e) => update(OnAllReleased))
-                .Grid(row: 2, column: 0, columnSpan: 2),
-
-            TextBox(historyText)
-                .AutomationName(intl.Message(Loc.Main.Intervals))
-                .Set(tb =>
-                {
-                    tb.IsReadOnly = true;
-                    tb.AcceptsReturn = true;
-                    tb.TextWrapping = TextWrapping.Wrap;
-                })
-                .Grid(row: 3, column: 0, columnSpan: 2)
+            testArea.Grid(row: 2, column: 0),
+            historyPane.Grid(row: 2, column: 1)
         )
         .Set(g =>
         {
-            g.ColumnSpacing = 8;
-            g.RowSpacing = 16;
+            g.RowSpacing = 16; // sin ColumnSpacing: el hueco va dentro del panel para que se anime
             g.ChildrenTransitions = [new EntranceThemeTransition { IsStaggeringEnabled = true }];
         })
         .Margin(24, 0, 24, 24);

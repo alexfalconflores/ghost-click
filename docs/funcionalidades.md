@@ -6,16 +6,34 @@ Estado actual de la app. Última actualización: 2026-11-23.
 Detecta si el mouse registra clics que el usuario no hizo ("clics fantasma"): dos pulsaciones del **mismo botón** separadas por menos tiempo que el umbral configurado. Es el síntoma típico de un interruptor desgastado.
 
 ## Prueba de clics (`MainPage`)
-- **Zona de prueba**: naranja mientras todo va bien; se vuelve roja al detectar el primer clic fantasma y se queda así hasta reiniciar.
-- **5 botones detectados**: izquierdo, central (rueda), derecho, atrás y adelante. Cada uno tiene sus propios contadores; alternar botones rápido **no** cuenta como fallo.
+
+### Zona de prueba
+- **Tarjeta estilo WinUI**: fondo de tarjeta, borde fino y esquinas de 8 px, con un icono de mouse y el texto "Haz clic aquí" en el centro.
+- **Respuesta al pulsar**: mientras hay algún botón pulsado, el fondo cambia al tono secundario de tarjeta, como un control nativo.
+- **Clic fantasma detectado**: el borde (2 px) y el icono pasan al color de error del sistema, el icono cambia a advertencia y el texto a "Clic fantasma detectado". Se queda así hasta reiniciar.
+- Todos los colores son tokens del sistema: se adaptan a claro, oscuro y alto contraste.
+
+### Detección
+- **5 botones**: izquierdo, central (rueda), derecho, atrás y adelante. Cada uno tiene sus propios contadores; alternar botones rápido **no** cuenta como fallo.
 - **Clics combinados**: se registran también los botones pulsados mientras otro sigue pulsado.
-- **Indicador en vivo**: una tarjeta por botón con un punto que se enciende mientras está pulsado.
 - **El primer clic de cada botón no genera intervalo.**
 - **Medición precisa** con `PointerPoint.Timestamp` (microsegundos del propio evento).
-- **Historial de intervalos** con el nombre del botón y una marca si fue clic fantasma.
-- **Umbral visible** en la cabecera.
-- **Reiniciar** borra contadores, historial, indicador y color.
-- Dentro de la zona de prueba, "atrás" no navega y el clic derecho no abre menús.
+- Dentro de la zona de prueba, "atrás" no navega y el clic derecho no abra menús.
+
+### Tarjetas por botón
+- Una por botón, del mismo ancho, con un punto que se enciende mientras está pulsado y sus contadores de clics y clics fantasma.
+
+### Historial de intervalos
+- **Panel a la derecha de la zona de prueba**, oculto por defecto.
+- Se abre y cierra con el botón **Historial**, junto a **Reiniciar**.
+- **Animación**: el ancho crece de 0 a 260 px en 250 ms (desaceleración) y empuja la zona de prueba; al cerrar, se encoge y la devuelve. Sin animación si el usuario las desactivó en Windows.
+- Cada fila muestra el botón, el intervalo en ms y, si fue clic fantasma, la marca y el tiempo en color de error.
+- Conserva los últimos 500 intervalos.
+- Cerrado, queda fuera del lector de pantalla y del orden de Tab.
+
+### Cabecera
+- Umbral actual a la izquierda; **Historial** y **Reiniciar** a la derecha.
+- **Reiniciar** borra contadores, historial, indicador y estado de clic fantasma.
 
 ## Configuración (`SettingsPage`)
 - **Tema**: sistema, claro u oscuro; se guarda entre sesiones.
