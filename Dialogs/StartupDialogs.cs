@@ -15,9 +15,11 @@ public class StartupDialogs : Component
         TextBlock(text).TextWrapping(TextWrapping.WrapWholeWords);
 
     static Element ListItem(string marker, string text) =>
-        HStack(8,
-            TextBlock(marker).Width(16),
-            Paragraph(text));
+        Grid(
+            columns: [GridSize.Auto, GridSize.Star()],
+            rows: [GridSize.Auto],
+            TextBlock(marker).Width(20).Grid(row: 0, column: 0),
+            Paragraph(text).Grid(row: 0, column: 1));
 
     static Element Header(string title) =>
         HStack(12,

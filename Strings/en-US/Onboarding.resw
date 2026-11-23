@@ -136,7 +136,10 @@
     <value>Welcome to Ghost Click</value>
   </data>
   <data name="WhatsNewChanges" xml:space="preserve">
-    <value>Now called Ghost Click⏎Rebuilt with WinUI 3 for Windows 11⏎Light and dark theme⏎New Settings page</value>
+    <value>It's now called Ghost Click
+Redesigned with WinUI 3 for Windows 11
+Light and dark themes
+New Settings page</value>
   </data>
   <data name="WhatsNewTitle" xml:space="preserve">
     <value>What’s new in {version}</value>
