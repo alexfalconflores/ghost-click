@@ -1,0 +1,10 @@
+{
+  "profiles": {
+    "GhostClick (Package)": {
+      "commandName": "MsixPackage"
+    },
+    "GhostClick (Unpackaged)": {
+      "commandName": "Project"
+    }
+  }
+}
