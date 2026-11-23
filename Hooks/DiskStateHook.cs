@@ -1,4 +1,5 @@
 ﻿using System.Text.Json;
+using System.Text.Json.Serialization.Metadata;
 using Microsoft.UI.Reactor.Core;
 
 namespace Click_Test.Hooks;
@@ -11,24 +12,24 @@ public static class DiskStateHook
 
     static string PathFor(string key) => Path.Combine(Folder, key + ".json");
 
-    static T Load<T>(string key, T fallback)
+    static T Load<T>(string key, T fallback, JsonTypeInfo<T> typeInfo)
     {
         try
         {
             var path = PathFor(key);
             return File.Exists(path)
-                ? JsonSerializer.Deserialize<T>(File.ReadAllText(path)) ?? fallback
+                ? JsonSerializer.Deserialize(File.ReadAllText(path), typeInfo) ?? fallback
                 : fallback;
         }
         catch { return fallback; }
     }
 
-    static void Save<T>(string key, T value)
+    static void Save<T>(string key, T value, JsonTypeInfo<T> typeInfo)
     {
         try
         {
             Directory.CreateDirectory(Folder);
-            File.WriteAllText(PathFor(key), JsonSerializer.Serialize(value));
+            File.WriteAllText(PathFor(key), JsonSerializer.Serialize(value, typeInfo));
         }
         catch { }
     }
@@ -45,18 +46,19 @@ public static class DiskStateHook
     }
 
     public static PersistedState<T> UseDiskState<T>(
-        this RenderContext ctx, string key, T defaultValue, bool persist = true)
+        this RenderContext ctx, string key, T defaultValue, JsonTypeInfo<T> typeInfo, bool persist = true)
     {
         var initial = ctx.UseMemo(
-            () => persist ? Load(key, defaultValue) : defaultValue,
+            () => persist ? Load(key, defaultValue, typeInfo) : defaultValue,
             []);
+
         var (value, setValue) = ctx.UseState(initial);
         var skipNextSave = ctx.UseRef(false);
 
         ctx.UseEffect(() =>
         {
             if (skipNextSave.Current) { skipNextSave.Current = false; return () => { }; }
-            if (persist) Save(key, value);
+            if (persist) Save(key, value, typeInfo);
             return () => { };
         }, value, persist);
 

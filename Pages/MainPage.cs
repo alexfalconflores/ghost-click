@@ -233,8 +233,7 @@ public class MainPage : Component
 
         var testArea = Border(
                 VStack(8,
-                    Icon(FontIcon(ghost ? "\uE7BA" : "\uE962", fontSize: 48))
-                        .Foreground(ghost ? Theme.SystemCritical : Theme.Ref("TextFillColorSecondaryBrush")),
+                    Icon(FontIcon(ghost ? "\uE7BA" : "\uE962", fontSize: 48)),
                     Subtitle(intl.Message(ghost ? Loc.Main.GhostTitle : Loc.Main.ClickHere)),
                     Caption(intl.Message(ghost ? Loc.Main.GhostHint : Loc.Main.ClickHereHint))
                         .Opacity(0.7)
@@ -283,7 +282,7 @@ public class MainPage : Component
             Grid(
                 columns: [GridSize.Star(), GridSize.Star(), GridSize.Star(), GridSize.Star(), GridSize.Star()],
                 rows: [GridSize.Auto],
-                Buttons.Select((b, i) => ButtonCard(b).Grid(row: 0, column: i)).ToArray()
+                [.. Buttons.Select((b, i) => ButtonCard(b).Grid(row: 0, column: i).WithKey(b.ToString()))]
             ).Set(g => g.ColumnSpacing = 8)
              .Grid(row: 1, column: 0, columnSpan: 2),
 
