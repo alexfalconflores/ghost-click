@@ -117,6 +117,21 @@
   <resheader name="writer">
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
+  <data name="ButtonBack" xml:space="preserve">
+    <value>Atrás</value>
+  </data>
+  <data name="ButtonForward" xml:space="preserve">
+    <value>Adelante</value>
+  </data>
+  <data name="ButtonLeft" xml:space="preserve">
+    <value>Izquierdo</value>
+  </data>
+  <data name="ButtonMiddle" xml:space="preserve">
+    <value>Central</value>
+  </data>
+  <data name="ButtonRight" xml:space="preserve">
+    <value>Derecho</value>
+  </data>
   <data name="Clicks" xml:space="preserve">
     <value>Clics</value>
   </data>
@@ -129,20 +144,8 @@
   <data name="Intervals" xml:space="preserve">
     <value>Tiempo entre clics (s)</value>
   </data>
-  <data name="LeftButton" xml:space="preserve">
-    <value>Botón izquierdo</value>
-  </data>
-  <data name="LeftShort" xml:space="preserve">
-    <value>Izq</value>
-  </data>
   <data name="Reset" xml:space="preserve">
     <value>Reiniciar</value>
-  </data>
-  <data name="RightButton" xml:space="preserve">
-    <value>Botón derecho</value>
-  </data>
-  <data name="RightShort" xml:space="preserve">
-    <value>Der</value>
   </data>
   <data name="TestArea" xml:space="preserve">
     <value>Zona de prueba de clics</value>

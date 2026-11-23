@@ -22,10 +22,11 @@ public static class Loc
         public static readonly MessageKey Reset = new(Ns, "Reset");
         public static readonly MessageKey TestArea = new(Ns, "TestArea");
         public static readonly MessageKey Intervals = new(Ns, "Intervals");
-        public static readonly MessageKey LeftButton = new(Ns, "LeftButton");
-        public static readonly MessageKey RightButton = new(Ns, "RightButton");
-        public static readonly MessageKey LeftShort = new(Ns, "LeftShort");
-        public static readonly MessageKey RightShort = new(Ns, "RightShort");
+        public static readonly MessageKey ButtonLeft = new(Ns, "ButtonLeft");
+        public static readonly MessageKey ButtonMiddle = new(Ns, "ButtonMiddle");
+        public static readonly MessageKey ButtonRight = new(Ns, "ButtonRight");
+        public static readonly MessageKey ButtonBack = new(Ns, "ButtonBack");
+        public static readonly MessageKey ButtonForward = new(Ns, "ButtonForward");
         public static readonly MessageKey GhostMarker = new(Ns, "GhostMarker");
         public static readonly MessageKey ThresholdInfo = new(Ns, "ThresholdInfo");
     }

@@ -7,13 +7,15 @@ Detecta si el mouse registra clics que el usuario no hizo ("clics fantasma"): do
 
 ## Prueba de clics (`MainPage`)
 - **Zona de prueba**: naranja mientras todo va bien; se vuelve roja al detectar el primer clic fantasma y se queda así hasta reiniciar.
-- **Botón izquierdo y derecho por separado**: cada uno tiene su propio contador de clics y de clics fantasma. Alternar botones rápido **no** cuenta como fallo.
-- **El primer clic de cada botón no genera intervalo** (no hay pulsación anterior con la que comparar).
-- **Medición precisa**: el tiempo sale de `PointerPoint.Timestamp` (microsegundos del propio evento), no de un `Stopwatch`, para no depender de lo que tarde la app en procesarlo.
-- **Historial de intervalos**: lista de cada intervalo con el botón y una marca si fue clic fantasma. Los números se formatean según el idioma.
+- **5 botones detectados**: izquierdo, central (rueda), derecho, atrás y adelante. Cada uno tiene sus propios contadores; alternar botones rápido **no** cuenta como fallo.
+- **Clics combinados**: se registran también los botones pulsados mientras otro sigue pulsado.
+- **Indicador en vivo**: una tarjeta por botón con un punto que se enciende mientras está pulsado.
+- **El primer clic de cada botón no genera intervalo.**
+- **Medición precisa** con `PointerPoint.Timestamp` (microsegundos del propio evento).
+- **Historial de intervalos** con el nombre del botón y una marca si fue clic fantasma.
 - **Umbral visible** en la cabecera.
-- **Reiniciar** borra contadores, historial y color.
-- Se ignoran la rueda y los botones laterales.
+- **Reiniciar** borra contadores, historial, indicador y color.
+- Dentro de la zona de prueba, "atrás" no navega y el clic derecho no abre menús.
 
 ## Configuración (`SettingsPage`)
 - **Tema**: sistema, claro u oscuro; se guarda entre sesiones.

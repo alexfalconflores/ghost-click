@@ -117,6 +117,21 @@
   <resheader name="writer">
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
+  <data name="ButtonBack" xml:space="preserve">
+    <value>Back</value>
+  </data>
+  <data name="ButtonForward" xml:space="preserve">
+    <value>Forward</value>
+  </data>
+  <data name="ButtonLeft" xml:space="preserve">
+    <value>Left</value>
+  </data>
+  <data name="ButtonMiddle" xml:space="preserve">
+    <value>Middle</value>
+  </data>
+  <data name="ButtonRight" xml:space="preserve">
+    <value>Right</value>
+  </data>
   <data name="Clicks" xml:space="preserve">
     <value>Clicks</value>
   </data>
@@ -129,20 +144,8 @@
   <data name="Intervals" xml:space="preserve">
     <value>Time between clicks (s)</value>
   </data>
-  <data name="LeftButton" xml:space="preserve">
-    <value>Left button</value>
-  </data>
-  <data name="LeftShort" xml:space="preserve">
-    <value>L</value>
-  </data>
   <data name="Reset" xml:space="preserve">
     <value>Reset</value>
-  </data>
-  <data name="RightButton" xml:space="preserve">
-    <value>Right button</value>
-  </data>
-  <data name="RightShort" xml:space="preserve">
-    <value> R</value>
   </data>
   <data name="TestArea" xml:space="preserve">
     <value>Click test area</value>

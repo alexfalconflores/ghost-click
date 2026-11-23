@@ -124,7 +124,7 @@
     <value>Frequent ghost clicks usually point to a worn switch. Cleaning or replacing the mouse may fix it.</value>
   </data>
   <data name="WelcomeStep1" xml:space="preserve">
-    <value>Click the test area with the left or right button at your normal pace.</value>
+    <value>Click the test area with any mouse button at your normal pace. You can press several at once.</value>
   </data>
   <data name="WelcomeStep2" xml:space="preserve">
     <value>If it turns red, two clicks arrived less than {threshold} ms apart: a ghost click.</value>

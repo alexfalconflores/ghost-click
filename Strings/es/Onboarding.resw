@@ -124,7 +124,7 @@
     <value>Si los clics fantasma son frecuentes, el interruptor probablemente está desgastado. Limpiar o cambiar el mouse puede solucionarlo.</value>
   </data>
   <data name="WelcomeStep1" xml:space="preserve">
-    <value>Haz clic en la zona de prueba con el botón izquierdo o derecho a tu ritmo normal.</value>
+    <value>Haz clic en la zona de prueba con cualquier botón del mouse a tu ritmo normal. Puedes pulsar varios a la vez.</value>
   </data>
   <data name="WelcomeStep2" xml:space="preserve">
     <value>Si se vuelve roja, llegaron dos clics con menos de {threshold} ms de diferencia: un clic fantasma.</value>
