@@ -136,9 +136,11 @@
     <value>Welcome to Ghost Click</value>
   </data>
   <data name="WhatsNewChanges" xml:space="preserve">
-    <value>Detects ghost releases: buttons that let go on their own while held
-Clear verdict for each button: fine, check it or replace it
-Bug fixes and performance improvements</value>
+    <value>The theme you choose is now applied as soon as the app opens, with no flash.
+The click history stays smooth even after hundreds of clicks.
+Changing the detection threshold in Settings now takes effect right away on the main page.
+Your settings are saved more reliably.
+General stability and performance improvements.</value>
   </data>
   <data name="WhatsNewTitle" xml:space="preserve">
     <value>What’s new in {version}</value>
