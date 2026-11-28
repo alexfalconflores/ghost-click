@@ -17,10 +17,12 @@ public static class SystemThemeHook
         // Una sola instancia por componente. Si no se guarda, el GC puede
         // eliminarla y el evento deja de llegar.
         var settings = ctx.UseMemo(() => new UISettings(), []);
-        var (isDark, setIsDark) = ctx.UseState(ReadIsDark(settings));
+        var initial = ctx.UseMemo(() => ReadIsDark(settings), []);
+        var (isDark, setIsDark) = ctx.UseState(initial);
 
         ctx.UseEffect(() =>
         {
+            // El evento llega en un hilo de fondo; el setter pasa solo al hilo de UI.
             void OnChanged(UISettings s, object _) => setIsDark(ReadIsDark(s));
             settings.ColorValuesChanged += OnChanged;
             return () => settings.ColorValuesChanged -= OnChanged;

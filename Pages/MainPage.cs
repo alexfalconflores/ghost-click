@@ -21,17 +21,19 @@ public record ButtonStats(int Clicks, int GhostClicks, ulong? LastTimestamp)
     public static readonly ButtonStats Empty = new(0, 0, null);
 }
 
-public record ClickEntry(ClickButton Button, double IntervalSec, bool IsGhost);
+public record ClickEntry(long Id, ClickButton Button, double IntervalSec, bool IsGhost);
 
 public record ClickState(
     ImmutableDictionary<ClickButton, ButtonStats> Stats,
     ImmutableHashSet<ClickButton> Pressed,
-    ClickEntry[] History)
+    ClickEntry[] History,
+    long NextId)
 {
     public static readonly ClickState Initial = new(
         ImmutableDictionary<ClickButton, ButtonStats>.Empty,
         ImmutableHashSet<ClickButton>.Empty,
-        []);
+        [],
+        0);
 
     public ButtonStats StatsFor(ClickButton b) => Stats.GetValueOrDefault(b, ButtonStats.Empty);
     public bool GhostDetected => Stats.Values.Any(s => s.GhostClicks > 0);
@@ -64,7 +66,10 @@ public class MainPage : Component
         {
             Stats = s.Stats.SetItem(button, updated),
             Pressed = s.Pressed.Add(button),
-            History = interval is double d ? [new ClickEntry(button, d, isGhost), .. s.History.Take(499)] : s.History,
+            History = interval is double d
+                ? [new ClickEntry(s.NextId, button, d, isGhost), .. s.History.Take(499)]
+                : s.History,
+            NextId = interval is null ? s.NextId : s.NextId + 1,
         };
     }
 
@@ -102,6 +107,8 @@ public class MainPage : Component
     };
 
     const double PaneWidth = 268; // 260 de tarjeta + 8 de separación
+    static readonly UISettings SystemUI = new();
+
 
     // Anima el ancho del panel: al crecer empuja a la zona de prueba
     static void AnimatePane(FrameworkElement pane, bool open)
@@ -113,7 +120,7 @@ public class MainPage : Component
         pane.Tag = to;
 
         // Primer render o animaciones desactivadas en Windows: sin animación
-        if (firstRender || !new UISettings().AnimationsEnabled)
+        if (firstRender || !SystemUI.AnimationsEnabled)
         {
             pane.Width = to;
             pane.Opacity = open ? 1 : 0;
@@ -152,7 +159,7 @@ public class MainPage : Component
         var intl = UseIntl();
         var (state, update) = UseReducer(ClickState.Initial);
         var (historyOpen, setHistoryOpen) = UseState(false);
-        var thresholdMs = AppSettings.ThresholdMs;
+        var thresholdMs = UseContext(AppContexts.Threshold).Ms;
 
         string Name(ClickButton b) => intl.Message(NameKey(b));
         string Ms(double sec) => $"{intl.FormatNumber(Math.Round(sec * 1000, 1))} ms";
@@ -205,18 +212,23 @@ public class MainPage : Component
                 rows: [GridSize.Auto],
                 Caption(Name(h.Button) + (h.IsGhost ? $" · {intl.Message(Loc.Main.GhostMarker)}" : ""))
                     .Grid(row: 0, column: 0),
-                time.Grid(row: 0, column: 1)
-            ).WithKey($"{state.History.Length - i}");
+                time.Grid(row: 0, column: 1));
         }
 
+        Element historyBody = state.History.Length == 0
+            ? Caption(intl.Message(Loc.Main.HistoryEmpty)).Opacity(0.7).TextWrapping(TextWrapping.Wrap)
+            : LazyVStack<ClickEntry>(state.History, h => h.Id.ToString(), HistoryRow);
+
+        // Grid con fila Star: LazyVStack necesita una altura acotada para virtualizar
         var historyCard = Border(
-                VStack(8,
-                    BodyStrong(intl.Message(Loc.Main.History)),
-                    state.History.Length == 0
-                        ? Caption(intl.Message(Loc.Main.HistoryEmpty)).Opacity(0.7).TextWrapping(TextWrapping.Wrap)
-                        : ScrollView(VStack(4, state.History.Select(HistoryRow).ToArray()))))
-            .Width(PaneWidth - 8) // ancho fijo: el contenido no se reacomoda mientras crece
-            .Margin(8, 0, 0, 0)   // separación con la zona de prueba (va dentro para que también se anime)
+                Grid(
+                    columns: [GridSize.Star()],
+                    rows: [GridSize.Auto, GridSize.Star()],
+                    BodyStrong(intl.Message(Loc.Main.History)).Grid(row: 0, column: 0),
+                    historyBody.Grid(row: 1, column: 0)
+                ).Set(g => g.RowSpacing = 8))
+            .Width(PaneWidth - 8)
+            .Margin(8, 0, 0, 0)
             .HAlign(HorizontalAlignment.Left)
             .Padding(12)
             .CornerRadius(8)
@@ -292,8 +304,10 @@ public class MainPage : Component
         .Set(g =>
         {
             g.RowSpacing = 16; // sin ColumnSpacing: el hueco va dentro del panel para que se anime
-            g.ChildrenTransitions = [new EntranceThemeTransition { IsStaggeringEnabled = true }];
+            //g.ChildrenTransitions = [new EntranceThemeTransition { IsStaggeringEnabled = true }];
         })
+        .OnMount(g => g.Transitions =
+            [new EntranceThemeTransition { IsStaggeringEnabled = true }])   // una sola vez
         .Margin(24, 0, 24, 24);
     }
 }

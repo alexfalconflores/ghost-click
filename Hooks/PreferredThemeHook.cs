@@ -1,6 +1,7 @@
 ﻿using Microsoft.UI.Reactor;
 using Microsoft.UI.Reactor.Core;
 using Microsoft.UI.Xaml;
+using Windows.Storage;
 
 namespace Click_Test.Hooks;
 
@@ -69,6 +70,18 @@ public static class PreferredThemeHook
             SetDark: v => setUserDark(v),
             FollowSystem: () => setUserDark(null),
             ClearSaved: removeSaved);
+    }
+
+    /// Lee la preferencia guardada sin hooks, para el primer frame de App.
+    public static ElementTheme ReadSavedElementTheme()
+    {
+        try
+        {
+            return ApplicationData.Current.LocalSettings.Values.TryGetValue(Key, out var v) && v is bool dark
+                ? (dark ? ElementTheme.Dark : ElementTheme.Light)
+                : ElementTheme.Default;   // sin preferencia: seguir al sistema
+        }
+        catch { return ElementTheme.Default; }
     }
 }
 

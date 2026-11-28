@@ -1,14 +1,15 @@
-﻿using System.Text.Json;
+﻿using System.Diagnostics;
+using System.Text.Json;
 using System.Text.Json.Serialization.Metadata;
 using Microsoft.UI.Reactor.Core;
+using Windows.Storage;
 
 namespace Click_Test.Hooks;
 
 public static class DiskStateHook
 {
-    static readonly string Folder = Path.Combine(
-        Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData),
-        "GhostClick");
+    // Carpeta privada del paquete MSIX (explícita, sin depender de la virtualización)
+    static readonly string Folder = ApplicationData.Current.LocalFolder.Path;
 
     static string PathFor(string key) => Path.Combine(Folder, key + ".json");
 
@@ -21,7 +22,11 @@ public static class DiskStateHook
                 ? JsonSerializer.Deserialize(File.ReadAllText(path), typeInfo) ?? fallback
                 : fallback;
         }
-        catch { return fallback; }
+        catch (Exception ex)
+        {
+            Debug.WriteLine($"[DiskState] Load '{key}': {ex.Message}");
+            return fallback;
+        }
     }
 
     static void Save<T>(string key, T value, JsonTypeInfo<T> typeInfo)
@@ -29,9 +34,17 @@ public static class DiskStateHook
         try
         {
             Directory.CreateDirectory(Folder);
-            File.WriteAllText(PathFor(key), JsonSerializer.Serialize(value, typeInfo));
+            var path = PathFor(key);
+            var tmp = path + ".tmp";
+
+            // Escritura atómica: si la app se cierra a mitad, el archivo anterior sigue intacto
+            File.WriteAllText(tmp, JsonSerializer.Serialize(value, typeInfo));
+            File.Move(tmp, path, overwrite: true);
         }
-        catch { }
+        catch (Exception ex)
+        {
+            Debug.WriteLine($"[DiskState] Save '{key}': {ex.Message}");
+        }
     }
 
     /// Borra el archivo de esa clave. Se puede llamar fuera de un componente.
@@ -42,7 +55,10 @@ public static class DiskStateHook
             var path = PathFor(key);
             if (File.Exists(path)) File.Delete(path);
         }
-        catch { }
+        catch (Exception ex)
+        {
+            Debug.WriteLine($"[DiskState] Delete '{key}': {ex.Message}");
+        }
     }
 
     public static PersistedState<T> UseDiskState<T>(

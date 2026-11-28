@@ -1,4 +1,5 @@
-﻿using Microsoft.UI.Reactor.Core;
+﻿using System.Diagnostics;
+using Microsoft.UI.Reactor.Core;
 using Windows.Storage;
 
 namespace Click_Test.Hooks;
@@ -12,7 +13,11 @@ public static class LocalSettingHook
             var values = ApplicationData.Current.LocalSettings.Values;
             return values.TryGetValue(key, out var v) && v is T t ? t : fallback;
         }
-        catch { return fallback; }
+        catch (Exception ex)
+        {
+            Debug.WriteLine($"[LocalSetting] Load '{key}': {ex.Message}");
+            return fallback;
+        }
     }
 
     static void Save<T>(string key, T value)
@@ -23,14 +28,17 @@ public static class LocalSettingHook
             if (value is null) values.Remove(key);   // LocalSettings no acepta null
             else values[key] = value;
         }
-        catch { }
+        catch (Exception ex)
+        {
+            Debug.WriteLine($"[LocalSetting] Save '{key}': {ex.Message}");
+        }
     }
 
     /// Borra la clave de LocalSettings. Se puede llamar fuera de un componente.
     public static void Delete(string key)
     {
         try { ApplicationData.Current.LocalSettings.Values.Remove(key); }
-        catch { }
+        catch (Exception ex) { Debug.WriteLine($"[LocalSetting] Delete '{key}': {ex.Message}"); }
     }
 
     public static PersistedState<T> UseLocalSetting<T>(

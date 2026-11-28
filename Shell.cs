@@ -13,82 +13,80 @@ using XamlAnimatedIcon = Microsoft.UI.Xaml.Controls.AnimatedIcon;
 
 namespace Click_Test;
 
-public record ShellCallbacks(Action<ElementTheme> OnThemeChanged);
+public record ShellProps(string Title, Action<ElementTheme> OnThemeChanged);
 
-
-public record ShellProps(
-    string Title,
-    Callbacks<ShellCallbacks> Cb,
-    bool PersistTheme = true);
+//public record ShellCallbacks(Action<ElementTheme> OnThemeChanged);
 
 public class Shell : Component<ShellProps>
 {
     public override Element Render()
     {
+        const WindowTitleBarHeight barHeight = WindowTitleBarHeight.Tall;
         var titleBarRef = this.UseElementRef<TitleBar>();
         var nav = UseNavigation(AppRoute.Main);
+        var settingsGlyph = UseMemo(() => new AnimatedSettingsVisualSource(), []);
 
-        var settingsGlyph = UseMemo(() => new AnimatedSettingsVisualSource());
-
-
-        return Memo(ctx =>
+        return RenderEachTime(ctx =>
         {
-            const WindowTitleBarHeight barHeight = WindowTitleBarHeight.Tall;
+            // Limitación conocida: solo se aplica al primer montaje (titleBarRef es estable).
             ctx.UseTitleBarLayout(titleBarRef, barHeight);
-            var theme = ctx.UsePreferredTheme(Props.PersistTheme);
+            var onSettings = nav.CurrentRoute == AppRoute.Settings;
+            var iconState = onSettings ? "Pressed" : "Normal";
+            var theme = ctx.UsePreferredTheme(persist: true);
 
             ctx.UseEffect(() =>
             {
-                Props.Cb.Value.OnThemeChanged(theme.ElementTheme);
+                Props.OnThemeChanged(theme.ElementTheme);
                 return () => { };
             }, theme.ElementTheme);
 
-            var onSettings = nav.CurrentRoute == AppRoute.Settings;
-            var iconState = onSettings ? "Pressed" : "Normal";
 
             var settingsButton =
-                Button(
-                    AnimatedIcon(settingsGlyph)
-                        .Size(16, 16)
-                        .IsHitTestVisible(false)
-                        .Set(icon =>
-                        {
-                            if (XamlAnimatedIcon.GetState(icon) != iconState)
-                                XamlAnimatedIcon.SetState(icon, iconState);
-                        }),
-                    () =>
+            Button(
+                AnimatedIcon(settingsGlyph)
+                    .Size(16, 16)
+                    .IsHitTestVisible(false)
+                    .Set(icon =>
                     {
-                        if (onSettings) return;   // ya estás en Configuración: no hacer nada
-                        nav.Navigate(AppRoute.Settings,
-                            new NavigateOptions { Transition = NavigationTransition.Entrance() });
-                    }
-                )
-                .VerticalAlignment(VerticalAlignment.Stretch)
-                .VerticalContentAlignment(VerticalAlignment.Center)
-                .HorizontalAlignment(HorizontalAlignment.Center)
-                .Size(40, 40)
-                .Margin(2)
-                .ToolTip("Configuración")
-                .AutomationName("Configuración");
+                        if (XamlAnimatedIcon.GetState(icon) != iconState)
+                            XamlAnimatedIcon.SetState(icon, iconState);
+                    }),
+                () =>
+                {
+                    if (onSettings) return;   // ya estás en Configuración
+                    nav.Navigate(AppRoute.Settings);
+                })
+            .VerticalContentAlignment(VerticalAlignment.Center)
+            .HorizontalAlignment(HorizontalAlignment.Center)
+            .Size(40, 40)
+            .Margin(2)
+            .ToolTip("Configuración")
+            .AutomationName("Configuración");
 
 
-            var titleBar = TitleBar("Ghost Click")
-            .Ref(titleBarRef)
-            .HeightOption(barHeight)
-            .PreferredTheme(theme.TitleBarTheme)
-            .WithNavigation(nav)
-            .AutoRefreshDragRegions(true)
-            .RightHeader(settingsButton)
-            .Flex(shrink: 0);
+            var titleBar = TitleBar(Props.Title)
+                .Ref(titleBarRef)
+                .HeightOption(barHeight)
+                .PreferredTheme(theme.TitleBarTheme)
+                .WithNavigation(nav)
+                .AutoRefreshDragRegions(true)
+                .RightHeader(settingsButton)
+                .Flex(shrink: 0);
 
+            // Fade en el host: las páginas ya hacen su propia entrada escalonada
             var pages = NavigationHost(nav, route => route switch
             {
-                AppRoute.Settings => Component<SettingsPage>(),
                 AppRoute.Main => Component<MainPage>(),
-                _ => Component<MainPage>()
-            }).Provide(AppContexts.Theme, theme);
+                AppRoute.Settings => Component<SettingsPage>(),
+                _ => TextBlock("Página no encontrada").Padding(24)
+            }) with
+            { Transition = NavigationTransition.Fade() };
 
-            return FlexColumn(titleBar, Border(pages).Flex(grow: 1, basis: 0), Component<StartupDialogs>());
-        }, Props, nav.CurrentRoute, nav.Depth);
+
+            return FlexColumn(
+                titleBar,
+                Border(pages.Provide(AppContexts.Theme, theme)).Flex(grow: 1, basis: 0),
+                Component<StartupDialogs>());
+        });
     }
 }

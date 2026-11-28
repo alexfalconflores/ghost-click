@@ -41,16 +41,14 @@ public class SettingsPage : Component
     {
         var intl = UseIntl();
         var theme = UseContext(AppContexts.Theme);
-
-        var (thresholdMs, setThresholdMs) = UseState(AppSettings.ThresholdMs);
+        var threshold = UseContext(AppContexts.Threshold);
 
 
         void OnThresholdChanged(double value)
         {
             if (double.IsNaN(value)) return; // el usuario vació el campo
             var ms = Math.Clamp((int)Math.Round(value), AppSettings.MinThresholdMs, AppSettings.MaxThresholdMs);
-            AppSettings.ThresholdMs = ms;
-            setThresholdMs(ms);
+            threshold.Set(ms);   // guarda en AppSettings y avisa a MainPage
         }
 
 
@@ -64,7 +62,7 @@ public class SettingsPage : Component
                 Arch: RuntimeInformation.ProcessArchitecture.ToString(),
                 pkg.Id.FamilyName,
                 Publisher: pkg.PublisherDisplayName);
-        });
+        }, []);
 
         // Se construye en cada render para que siga el idioma activo
         string[] themeOptions =
@@ -103,17 +101,18 @@ public class SettingsPage : Component
                 SettingsCard(
                     header: intl.Message(Loc.Settings.Threshold),
                     description: intl.Message(Loc.Settings.ThresholdDescription, ("default", AppSettings.DefaultThresholdMs)),
-                    content: NumberBox(thresholdMs, OnThresholdChanged)
+                    content: NumberBox(threshold.Ms, OnThresholdChanged)
                         .Range(AppSettings.MinThresholdMs, AppSettings.MaxThresholdMs)
                         .SpinButtons()
                         .AutomationName(intl.Message(Loc.Settings.Threshold))
-                        .Set(nb => { nb.SmallChange = 5; nb.LargeChange = 20; })
+                        . Set(nb => { nb.SmallChange = 5; nb.LargeChange = 20; })
                         .MinWidth(160)),
 
                 // ── Acerca de ──
-                Styled(intl.Message(Loc.Settings.About), "NavigationViewItemHeaderTextStyle")
+                Styled(intl.Message(Loc.Settings. About), "NavigationViewItemHeaderTextStyle")
                     .Margin(0, 24, 0, 0)
-                    .Set(tb => tb.Transitions = Reposition()),
+                    .OnMount(tb => tb. Transitions = Reposition()),
+
                 SettingsExpander(
                     header: info.Name,
                     description: "Alex Falcon Flores",
@@ -135,7 +134,7 @@ public class SettingsPage : Component
                         ]))
                     ])
                     .Margin(0, 4, 0, 0)
-                    .Set(e => e.Transitions = Reposition()),
+                    .OnMount(e => e.Transitions = Reposition()),
 
                 // ── Bibliotecas ──
                 SettingsExpander(
@@ -143,17 +142,16 @@ public class SettingsPage : Component
                     headerIcon: Icon(FontIcon("\uEA86")),
                     items: (object[])[
                         LeftCard(VStack(0, [
-                            TextBlock(intl. Message(Loc.Settings.LibrariesIntro))
+                            TextBlock(intl.Message(Loc.Settings.LibrariesIntro))   // ← sin el espacio
                                 .TextWrapping(TextWrapping.Wrap)
                                 .Margin(0, 0, 0, 10),
                             .. Libraries.Select(l => Link(l.Name, l.Url))
                         ]))
                     ])
-                    .Set(e => e.Transitions = Reposition())
+                    .OnMount(e => e.Transitions = Reposition())
             ])
             .Padding(36, 0, 36, 36)
-            // <EntranceThemeTransition IsStaggeringEnabled="True" />
-            .Set(sp => sp.ChildrenTransitions =
+            .OnMount(sp => sp.Transitions =
                 [new EntranceThemeTransition { IsStaggeringEnabled = true }]));
     }
 }
